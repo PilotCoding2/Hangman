@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman</title>
+    <script src="./script.js" defer></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <h1>Hangman</h1>
+    <div id="welcome-screen">
+        <h2>Welcome Player!</h2>
+        <form>
+            <label for="name">What's yer name?</label>
+            <input type="text" name="name" required>
+            <label for="difficulty">Choose yer difficulty</label>
+            <select name="difficulty" id="difficulty" required>
+                <option value="1">Easy</option>
+                <option value="2">Medium</option>
+                <option value="3">Hard</option>
+            </select>
+            <input type="submit" value="Let's Play!">
+        </form>
+    </div>
+    <div id="gamescreen" class="invisible">
+        
+    </div>
+</body>
+</html>
