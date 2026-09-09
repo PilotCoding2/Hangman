@@ -10,10 +10,10 @@
 <body>
     <h1>Hangman</h1>
     <div id="welcome-screen">
-        <h2>Welcome Player!</h2>
         <form id="begin-game">
+            <h2>Welcome Player!</h2>
             <label for="name">What's yer name?</label>
-            <input type="text" name="name" id="name" required>
+            <input type="text" name="name" id="name">
             <label for="difficulty">Choose yer difficulty</label>
             <select name="difficulty" id="difficulty" required>
                 <option value="1">Easy</option>
@@ -25,7 +25,9 @@
     </div>
     <div id="gamescreen" class="invisible">
         <div id="hangman-area"></div>
-        <div id="letters-area"></div>
+        <div id="letters-area">
+        </div>
+        <button id="check-answer">Check</button>
     </div>
 </body>
 </html>

@@ -77,8 +77,9 @@ const GameController = (name) => {
 
   // function that decides the players accuracy 
   const isPlayerAccurate = (word, letter, position, playerArray) => {
+    // this variable will allow us to paint the text boxes
     let status;
-    
+    let incorrectLetter;
     if(word.includes(letter) && word[position] === letter){
         status = 'accurate';
         // if accurate, insert the letter into the position
@@ -86,11 +87,15 @@ const GameController = (name) => {
     } else if(word.includes(letter) && word[position] !== letter){
         status = 'present';
         player.decreaseLifes();
+        incorrectLetter = letter;
     } else {
         status = 'inaccurate';
         player.decreaseLifes();
+        incorrectLetter = letter;
     }
-    return status;
+    console.log(word);
+    console.log(status);
+    return { status, incorrectLetter };
   }
 
   // function that verifies if the round is won or lost
@@ -119,17 +124,45 @@ const GraphicInterface = () => {
         for(let i = 0; i < word.length; i++){
             area.innerHTML += 
             `
-                <input type="text" maxlength="1" pattern="[A-Za-z]" class="text-box">
+                <input type="text" maxlength="1" pattern="[A-Za-z]" id="box-${i}" class="text-box">
             `
         }
     }
 
-    return { removeGameStartForm, appendTextArea }
+    // graphical function that blocks the boxes if another box has input
+    const blockEmptyBoxes = (boxes, event) => {
+        const textAreaArray = Array.from(boxes);
+        const isOneBoxFilled = textAreaArray.some(box => box.value !== '' && !box.classList.contains('accurate'));
+        textAreaArray.forEach(box => {
+            box.disabled = isOneBoxFilled && box.value === '';
+        });
+    }
+
+    const addStatusToBoxes = (status, position) => {
+        const box = document.getElementById(`box-${position}`);
+        if(box.classList.contains('inaccurate')){
+            box.classList.remove('inaccurate');
+            box.classList.add(status);
+        } else if(box.classList.contains('present')){
+            box.classList.remove('present');
+            box.classList.add(status);
+        }
+        box.classList.add(status);
+        box.readOnly = status === 'accurate';
+    }
+
+    const getPlayerGuess = boxes => {
+        const position = Array.from(boxes).findIndex(box => box.value !== '' && !box.classList.contains('accurate'));
+        const letter = boxes[position].value;
+        return { letter, position };
+    }
+    
+
+    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes }
       
 }
 
 // We add our factory functions to our variables
-let playerArray;
 graphics = GraphicInterface();
 
 // We declare our DOM variables
@@ -139,13 +172,34 @@ const formGameDifficulty = document.getElementById('difficulty');
 const gameScreen = document.getElementById('gamescreen');
 const hangmanArea = document.getElementById('hangman-area');
 const lettersArea = document.getElementById('letters-area');
+const checkAnswerBtn = document.getElementById('check-answer');
+
+// Global variables that we will need, because we need them to be accesible (at least for now).
+let word;
+let playerArray;
 
 gameForm.addEventListener('submit', (e) => {
     e.preventDefault();
     controller = GameController(formUserName.value);
     graphics.removeGameStartForm(gameForm, gameScreen);
-    const word = controller.getCurrentWord(Number(formGameDifficulty.value));
+    word = controller.getCurrentWord(Number(formGameDifficulty.value));
     playerArray = controller.generatePlayerArray(word);
     graphics.appendTextArea(word, lettersArea);
+});
+
+lettersArea.addEventListener('input', (event) => {
+    const textAreaNode = lettersArea.querySelectorAll('.text-box');
+    if(event.target.classList.contains('text-box')){
+        graphics.blockEmptyBoxes(textAreaNode, event);
+    }
+    
+});
+
+checkAnswerBtn.addEventListener('click', () => {
+    const textAreaNode = lettersArea.querySelectorAll('.text-box');
+    const playerGuess = graphics.getPlayerGuess(textAreaNode);
+    const playerAccuracy = controller.isPlayerAccurate(word, playerGuess.letter, playerGuess.position, playerArray);
+    graphics.addStatusToBoxes(playerAccuracy.status, playerGuess.position);
+    graphics.blockEmptyBoxes(textAreaNode);
 });
 
