@@ -11,20 +11,21 @@
     <h1>Hangman</h1>
     <div id="welcome-screen">
         <h2>Welcome Player!</h2>
-        <form>
+        <form id="begin-game">
             <label for="name">What's yer name?</label>
-            <input type="text" name="name" required>
+            <input type="text" name="name" id="name" required>
             <label for="difficulty">Choose yer difficulty</label>
             <select name="difficulty" id="difficulty" required>
                 <option value="1">Easy</option>
                 <option value="2">Medium</option>
                 <option value="3">Hard</option>
             </select>
-            <input type="submit" value="Let's Play!">
+            <input type="submit" value="Let's Play!" id="play-btn">
         </form>
     </div>
     <div id="gamescreen" class="invisible">
-        
+        <div id="hangman-area"></div>
+        <div id="letters-area"></div>
     </div>
 </body>
 </html>

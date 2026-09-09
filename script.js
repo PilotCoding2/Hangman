@@ -2,7 +2,7 @@ let controller;
 let graphics;
 
 const createPlayer = name => {
-    const name = name;
+    const playerName = name;
     let playerLifes = 6;
     let playerWins = 0;
     
@@ -18,7 +18,7 @@ const createPlayer = name => {
     // return the amount of lifes the player has
     const getPlayerLifes = () => { return playerLifes; }
 
-    return { name,  decreaseLifes, increasePlayerWins, resetPlayerLifes, getPlayerLifes }
+    return { playerName, decreaseLifes, increasePlayerWins, resetPlayerLifes, getPlayerLifes }
 }
 
 const GameController = (name) => {
@@ -66,51 +66,86 @@ const GameController = (name) => {
         filteredWords = words.filter(letters => letters.length >= 8);
     }
 
-    return filteredWords[Math.floor(Math.random() * words.length)];
+    return filteredWords[Math.floor(Math.random() * filteredWords.length)];
   };
 
-  // function that controls the gameflow
-  const gameflow = (word, letter, position) => {
-    let accurate;
-    let present;
-    let inaccurate;
-
-    // this shouldnt be declared here because it would get reset after every play
+  // array that stores the player's correct guesses
+  const generatePlayerArray = (word) => {
     let playerWord = new Array(word.length);
-    let isRoundWon;
-    
+    return playerWord;
+  }
 
+  // function that decides the players accuracy 
+  const isPlayerAccurate = (word, letter, position, playerArray) => {
+    let status;
+    
     if(word.includes(letter) && word[position] === letter){
-        accurate = true;
-        present = false;
-        inaccurate = false;
+        status = 'accurate';
         // if accurate, insert the letter into the position
-        playerWord[position] = letter;
+        playerArray[position] = letter;
     } else if(word.includes(letter) && word[position] !== letter){
-        present = true;
-        accurate = false;
-        inaccurate = false;
+        status = 'present';
         player.decreaseLifes();
-    } else if(!word.includes(letter) && word[position] !== letter){
-        inaccurate = true;
-        accurate = false;
-        present = false;
+    } else {
+        status = 'inaccurate';
         player.decreaseLifes();
     }
+    return status;
+  }
 
-    // I'll make another function for this
-    if(playerWord.length === word.length && player.getPlayerLifes() > 0){
-        return isRoundWon = true;
-    } else if (player.getPlayerLifes() === 0){
-        return isRoundWon = false;
+  // function that verifies if the round is won or lost
+  const isRoundWon = (playerWord, word) => {
+    let roundStatus;
+    if(player.getPlayerLifes() === 0){
+        return roundStatus = false;
+    } else if(playerWord.join('').toLowerCase() === word && player.getPlayerLifes() > 0){
+        return roundStatus = true;
     }
   }
 
 
-
-  return { getCurrentWord, }
+  return { getCurrentWord, isPlayerAccurate, generatePlayerArray }
 };
 
 const GraphicInterface = () => {
+    // function that removes the game start form
+    const removeGameStartForm = (form, screen) => {
+        form.classList.add('invisible');
+        screen.classList.remove('invisible');
+    }
+
+    // function that appends textarea boxes according to the length of the word
+    const appendTextArea = (word, area) => {
+        for(let i = 0; i < word.length; i++){
+            area.innerHTML += 
+            `
+                <input type="text" maxlength="1" pattern="[A-Za-z]" class="text-box">
+            `
+        }
+    }
+
+    return { removeGameStartForm, appendTextArea }
       
-}t 
+}
+
+// We add our factory functions to our variables
+let playerArray;
+graphics = GraphicInterface();
+
+// We declare our DOM variables
+const gameForm = document.getElementById('begin-game');
+const formUserName = document.getElementById('name');
+const formGameDifficulty = document.getElementById('difficulty');
+const gameScreen = document.getElementById('gamescreen');
+const hangmanArea = document.getElementById('hangman-area');
+const lettersArea = document.getElementById('letters-area');
+
+gameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    controller = GameController(formUserName.value);
+    graphics.removeGameStartForm(gameForm, gameScreen);
+    const word = controller.getCurrentWord(Number(formGameDifficulty.value));
+    playerArray = controller.generatePlayerArray(word);
+    graphics.appendTextArea(word, lettersArea);
+});
+
