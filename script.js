@@ -79,37 +79,42 @@ const GameController = (name) => {
   const isPlayerAccurate = (word, letter, position, playerArray) => {
     // this variable will allow us to paint the text boxes
     let status;
-    let incorrectLetter;
-    if(word.includes(letter) && word[position] === letter){
+    let lowerCaseLetter = letter.toLowerCase();
+    if(word.includes(lowerCaseLetter) && word[position] === lowerCaseLetter){
         status = 'accurate';
         // if accurate, insert the letter into the position
-        playerArray[position] = letter;
-    } else if(word.includes(letter) && word[position] !== letter){
+        playerArray[position] = lowerCaseLetter;
+        console.log(player.getPlayerLifes());
+    } else if(word.includes(lowerCaseLetter) && word[position] !== lowerCaseLetter){
         status = 'present';
         player.decreaseLifes();
-        incorrectLetter = letter;
+        console.log(player.getPlayerLifes());
     } else {
         status = 'inaccurate';
         player.decreaseLifes();
-        incorrectLetter = letter;
+        console.log(player.getPlayerLifes());
     }
+    // remove this console logs once the final version is published
     console.log(word);
     console.log(status);
-    return { status, incorrectLetter };
+    return { status };
   }
 
   // function that verifies if the round is won or lost
-  const isRoundWon = (playerWord, word) => {
-    let roundStatus;
+  const gameStatusChecker = (playerWord, word) => {
+    let isRoundWon;
     if(player.getPlayerLifes() === 0){
-        return roundStatus = false;
+        alert('game lost');
+        isRoundWon = false;
     } else if(playerWord.join('').toLowerCase() === word && player.getPlayerLifes() > 0){
-        return roundStatus = true;
+        alert('game won');
+        isRoundWon = true;
     }
+    return { isRoundWon };
   }
 
 
-  return { getCurrentWord, isPlayerAccurate, generatePlayerArray }
+  return { getCurrentWord, isPlayerAccurate, generatePlayerArray, gameStatusChecker }
 };
 
 const GraphicInterface = () => {
@@ -130,7 +135,7 @@ const GraphicInterface = () => {
     }
 
     // graphical function that blocks the boxes if another box has input
-    const blockEmptyBoxes = (boxes, event) => {
+    const blockEmptyBoxes = boxes => {
         const textAreaArray = Array.from(boxes);
         const isOneBoxFilled = textAreaArray.some(box => box.value !== '' && !box.classList.contains('accurate'));
         textAreaArray.forEach(box => {
@@ -138,6 +143,7 @@ const GraphicInterface = () => {
         });
     }
 
+    // this function adds the class to the respective text box where the player guessed
     const addStatusToBoxes = (status, position) => {
         const box = document.getElementById(`box-${position}`);
         if(box.classList.contains('inaccurate')){
@@ -151,14 +157,23 @@ const GraphicInterface = () => {
         box.readOnly = status === 'accurate';
     }
 
+    // this function removes the status class when the player presses backspace
+    const removeStatusBoxes = box => {
+        if(box.classList.contains('inaccurate') || box.classList.contains('present')){
+            box.classList.remove('inaccurate');
+            box.classList.remove('present');
+        }
+    }
+
+    // this function gets the player guess from the GUI
     const getPlayerGuess = boxes => {
         const position = Array.from(boxes).findIndex(box => box.value !== '' && !box.classList.contains('accurate'));
         const letter = boxes[position].value;
         return { letter, position };
     }
-    
 
-    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes }
+    
+    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes }
       
 }
 
@@ -190,16 +205,31 @@ gameForm.addEventListener('submit', (e) => {
 lettersArea.addEventListener('input', (event) => {
     const textAreaNode = lettersArea.querySelectorAll('.text-box');
     if(event.target.classList.contains('text-box')){
-        graphics.blockEmptyBoxes(textAreaNode, event);
+        graphics.blockEmptyBoxes(textAreaNode);
     }
-    
 });
+
+lettersArea.addEventListener('keydown', (event) => {
+    if(event.target.classList.contains('text-box') && event.key === 'Backspace'){
+        graphics.removeStatusBoxes(event.target);
+    } 
+})
 
 checkAnswerBtn.addEventListener('click', () => {
     const textAreaNode = lettersArea.querySelectorAll('.text-box');
     const playerGuess = graphics.getPlayerGuess(textAreaNode);
+
+    // Avoids the player from sending nothing to the game controller
+    if(playerGuess.letter === ''){
+        return;
+    }
+
     const playerAccuracy = controller.isPlayerAccurate(word, playerGuess.letter, playerGuess.position, playerArray);
     graphics.addStatusToBoxes(playerAccuracy.status, playerGuess.position);
     graphics.blockEmptyBoxes(textAreaNode);
+    const isGameWon = controller.gameStatusChecker(playerArray, word);
+    if(isGameWon.isRoundWon === false){
+        console.log('game lost');
+    }
 });
 
