@@ -119,9 +119,10 @@ const GameController = (name) => {
 
 const GraphicInterface = () => {
     // function that removes the game start form
-    const removeGameStartForm = (form, screen) => {
-        form.classList.add('invisible');
+    const removeGameStartForm = (welcomeScreen, screen, gameBtn) => {
+        welcomeScreen.innerHTML = '';
         screen.classList.remove('invisible');
+        gameBtn.classList.remove('invisible');
     }
 
     // function that appends textarea boxes according to the length of the word
@@ -188,6 +189,7 @@ const gameScreen = document.getElementById('gamescreen');
 const hangmanArea = document.getElementById('hangman-area');
 const lettersArea = document.getElementById('letters-area');
 const checkAnswerBtn = document.getElementById('check-answer');
+const welcomeScreenArea = document.getElementById('welcome-screen');
 
 // Global variables that we will need, because we need them to be accesible (at least for now).
 let word;
@@ -196,7 +198,7 @@ let playerArray;
 gameForm.addEventListener('submit', (e) => {
     e.preventDefault();
     controller = GameController(formUserName.value);
-    graphics.removeGameStartForm(gameForm, gameScreen);
+    graphics.removeGameStartForm(welcomeScreenArea, gameScreen, checkAnswerBtn);
     word = controller.getCurrentWord(Number(formGameDifficulty.value));
     playerArray = controller.generatePlayerArray(word);
     graphics.appendTextArea(word, lettersArea);
@@ -233,3 +235,4 @@ checkAnswerBtn.addEventListener('click', () => {
     }
 });
 
+ 

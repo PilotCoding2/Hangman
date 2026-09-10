@@ -1,3 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Rye&family=Special+Elite&display=swap');
+
+:root {
+  /* Surfaces */
+  --paper: #E8D6AC;
+  --paper-shade: #DCC79A;
+  --plank: #4A3120;
+  --plank-dark: #2E1C0E;
+
+  /* Ink and text */
+  --ink: #2E1E12;
+  --ink-soft: #5F4A30;
+  --text-light: #E8D6AC;
+
+  /* Accents */
+  --brass: #C9922C;
+  --saloon-red: #A8321E;
+  --cactus-green: #5F6B45;
+
+  /* Borders */
+  --paper-border: #8A6A3C;
+  --wood-border: #35210F;
+
+  /* Typography */
+  --font-display: 'Rye', Georgia, serif;
+  --font-body: 'Special Elite', 'Courier New', monospace;
+
+  /* Text scale */
+  --text-xl: 2.5rem;
+  --text-lg: 1.5rem;
+  --text-md: 1rem;
+  --text-sm: 0.8rem;
+}
+
+body{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    background: repeating-linear-gradient(
+        var(--plank),
+        var(--plank) 20px,
+        var(--plank-dark) 50px,
+        var(--plank-dark) 55px
+    );
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
 .invisible{
     display: none;
 }
@@ -27,4 +76,22 @@
 
 .inaccurate{
     background-color: red;
+}
+
+#begin-game{
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    border: 2px solid black;
+    padding: 40px;
+    align-content: center;
+    align-self: center;
+    background-color: var(--paper);
+}
+
+#begin-game h2{
+    font-family: var(--font-display);
+    text-align: center;
+    color: var(--ink);
+    font-size: var(--text-xl);
 }
