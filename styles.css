@@ -50,34 +50,7 @@ body{
 }
 
 .invisible{
-    display: none;
-}
-
-#gamescreen{
-    width: 100vw;
-    height: 100vh;
-}
-
-#letters-area{
-    display: flex;
-    column-gap: 5px;
-}
-
-.text-box{
-    width: 50px;
-    height: 50px;
-}
-
-.accurate{
-    background-color: green;
-}
-
-.present{
-    background-color: yellow;
-}
-
-.inaccurate{
-    background-color: red;
+    display: none !important;
 }
 
 #welcome-screen{
@@ -200,5 +173,195 @@ body{
     outline: none;
     transform: rotate(-2deg);
     text-align: center;
+}
+
+
+#gamescreen{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+#hangman-area{
+    background-color: var(--paper);
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#letters-area{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 95vw;
+}
+
+.text-box{
+    width: 60px;
+    height: 60px;
+    background-color: var(--paper-shade);
+    border-radius: 6px;
+    font-family: var(--font-display);
+    color: var(--ink);
+    text-align: center;
+    font-size: var(--text-xl);
+    border: 4px solid var(--paper-border);
+}
+
+.text-box:focus{
+    outline: none;
+    border: 4px solid var(--brass);
+}
+
+.accurate{
+    background-color: var(--cactus-green);
+    color: var(--paper);
+}
+
+.present{
+    background-color: var(--brass);
+    color: var(--ink);
+}
+
+.inaccurate{
+    background-color: var(--saloon-red);
+    color-scheme: var(--ink-soft);
+}
+
+#hangman-area{
+    position: relative;
+    border: 2px solid var(--paper-border);
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.wood-beam{
+    background-color: var(--plank-dark);
+    border-radius: 2px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    position: absolute;
+}
+
+.gallows-base{
+    width: 260px;
+    height: 12px;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.gallows-post{
+    width: 15px;
+    height: 480px;
+    bottom: 50px;
+    left: 80px;
+}
+
+.gallows-beam{
+    width: 220px;
+    height: 15px;
+    top: 70px;
+    left: 80px;
+}
+
+.gallows-brace{
+    width: 100px;
+    height: 10px;
+    top: 140px;
+    left: 90px;
+    transform: rotate(-40deg);
+    transform-origin: top left;
+}
+
+.gallows-rope{
+    width: 7px;
+    height: 160px;
+    background-color: var(--brass);
+    position: absolute;
+    top: 55.5px;
+    left: 120px;
+    border-radius: 2px;
+    transform: rotate(40deg);
+}
+
+.gallows-rope::after{
+    content: '';
+    width: 48px;
+    height: 64px;
+    border: 4px solid var(--brass);
+    border-radius: 50%;
+    position: absolute;
+    bottom: -60px;
+    left: -20px;
+    box-sizing: border-box;
+}
+
+.figure-part{
+    background-color: var(--ink);
+    position: absolute;
+    border-radius: 10px;
+}
+
+.figure-head{
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--ink);
+    background-color: transparent;
+    border-radius: 50%;
+    top: 245px;
+    left: 243.5px;
+}
+
+.figure-torso{
+    width: 6px;
+    height: 110px;
+    top: 300px;
+    left: 270px;
+}
+
+.figure-arm-left, .figure-arm-right{
+    width: 6px;
+    height: 70px;
+    top: 320px;
+}
+
+.figure-arm-left{
+    left: 270px;
+    transform: rotate(35deg);
+    transform-origin: top center;
+}
+
+.figure-arm-right{
+    left: 270px;
+    transform: rotate(-35deg);
+    transform-origin: top center;
+}
+
+.figure-leg-left, .figure-leg-right{
+    width: 6px;
+    height: 85px;
+    top: 400px;
+}
+
+.figure-leg-left{
+    left: 270px;
+    transform: rotate(25deg);
+    transform-origin: top center;
+}
+
+.figure-leg-right{
+    left: 270px;
+    transform: rotate(-25deg);
+    transform-origin: top center;
 }
 

@@ -16,9 +16,12 @@ const createPlayer = name => {
     const resetPlayerLifes = () => { playerLifes = 6; };
 
     // return the amount of lifes the player has
-    const getPlayerLifes = () => { return playerLifes; }
+    const getPlayerLifes = () => { return playerLifes; };
 
-    return { playerName, decreaseLifes, increasePlayerWins, resetPlayerLifes, getPlayerLifes }
+    // returns the player name
+    const getPlayerName = () => { return playerName; };
+
+    return { getPlayerName, decreaseLifes, increasePlayerWins, resetPlayerLifes, getPlayerLifes }
 }
 
 const GameController = (name) => {
@@ -114,13 +117,13 @@ const GameController = (name) => {
   }
 
 
-  return { getCurrentWord, isPlayerAccurate, generatePlayerArray, gameStatusChecker }
+  return { getCurrentWord, isPlayerAccurate, generatePlayerArray, gameStatusChecker, player }
 };
 
 const GraphicInterface = () => {
     // function that removes the game start form
     const removeGameStartForm = (welcomeScreen, screen, gameBtn) => {
-        welcomeScreen.innerHTML = '';
+        welcomeScreen.classList.add('invisible');
         screen.classList.remove('invisible');
         gameBtn.classList.remove('invisible');
     }
@@ -173,8 +176,69 @@ const GraphicInterface = () => {
         return { letter, position };
     }
 
+    // adds the HTML of the gallows
+    const initializeGameArea = gameArea => {
+        gameArea.innerHTML = 
+        `
+        <div class="gallows-base wood-beam"></div>
+        <div class="gallows-post wood-beam"></div>
+        <div class="gallows-beam wood-beam"></div>
+        <div class="gallows-brace wood-beam"><div>
+        <div class="gallows-rope"></div>
+        `
+    }
+
+    // adds the HTML of the hangman
+    const addTheHangman = (playerLifes, gameArea) => {
+        if(playerLifes === 6){
+            return;
+        } else if(playerLifes === 5){
+            gameArea.innerHTML += '<div class="figure-part figure-head"></div>'
+        } else if(playerLifes === 4){
+            gameArea.innerHTML += 
+            `
+            <div class="figure-part figure-head"></div>
+            <div class="figure-part figure-torso"></div>
+            `
+        } else if(playerLifes === 3){
+            gameArea.innerHTML += 
+            `
+            <div class="figure-part figure-head"></div>
+            <div class="figure-part figure-torso"></div>
+            <div class="figure-part figure-arm-left"></div>
+            `
+        } else if(playerLifes === 2){
+            gameArea.innerHTML +=
+            `
+            <div class="figure-part figure-head"></div>
+            <div class="figure-part figure-torso"></div>
+            <div class="figure-part figure-arm-left"></div>
+            <div class="figure-part figure-arm-right"></div>
+            `
+        } else if(playerLifes === 1){
+            gameArea.innerHTML +=
+            `
+            <div class="figure-part figure-head"></div>
+            <div class="figure-part figure-torso"></div>
+            <div class="figure-part figure-arm-left"></div>
+            <div class="figure-part figure-arm-right"></div>
+            <div class="figure-part figure-leg-left"></div>
+            `
+        } else {
+            gameArea.innerHTML +=
+            `
+            <div class="figure-part figure-head"></div>
+            <div class="figure-part figure-torso"></div>
+            <div class="figure-part figure-arm-left"></div>
+            <div class="figure-part figure-arm-right"></div>
+            <div class="figure-part figure-leg-left"></div>
+            <div class="figure-part figure-leg-right"></div>
+            `
+        }
+    }
+
     
-    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes }
+    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes, initializeGameArea, addTheHangman }
       
 }
 
@@ -202,6 +266,7 @@ gameForm.addEventListener('submit', (e) => {
     word = controller.getCurrentWord(Number(formGameDifficulty.value));
     playerArray = controller.generatePlayerArray(word);
     graphics.appendTextArea(word, lettersArea);
+    graphics.initializeGameArea(hangmanArea, controller.player.getPlayerName());
 });
 
 lettersArea.addEventListener('input', (event) => {
@@ -229,10 +294,7 @@ checkAnswerBtn.addEventListener('click', () => {
     const playerAccuracy = controller.isPlayerAccurate(word, playerGuess.letter, playerGuess.position, playerArray);
     graphics.addStatusToBoxes(playerAccuracy.status, playerGuess.position);
     graphics.blockEmptyBoxes(textAreaNode);
-    const isGameWon = controller.gameStatusChecker(playerArray, word);
-    if(isGameWon.isRoundWon === false){
-        console.log('game lost');
-    }
+    graphics.addTheHangman(controller.player.getPlayerLifes(), hangmanArea);
 });
 
  
