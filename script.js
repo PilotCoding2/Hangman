@@ -117,8 +117,15 @@ const GameController = (name) => {
     }
     return { isRoundWon };
   }
+  // function that resets the game status
+  const resetGameStatus = (difficulty) => {
+    const word = getCurrentWord(difficulty);
+    const playerArray = generatePlayerArray(word);
+    player.resetPlayerLifes();
+    return { playerArray, word };
+  }
 
-  return { getCurrentWord, isPlayerAccurate, generatePlayerArray, gameStatusChecker, player }
+  return { getCurrentWord, isPlayerAccurate, generatePlayerArray, gameStatusChecker, player, resetGameStatus }
 };
 
 const GraphicInterface = () => {
@@ -127,6 +134,16 @@ const GraphicInterface = () => {
         welcomeScreen.classList.add('invisible');
         screen.classList.remove('invisible');
         gameBtn.classList.remove('invisible');
+    }
+
+    // function that removes the end game overlay
+    const removeEndScreen = (overlay, word, area, gameArea) => {
+        overlay.remove();
+        area.innerHTML = '';
+        appendTextArea(word, area);
+        area.classList.remove('invisible');
+        document.getElementById('check-answer').classList.remove('invisible');
+        initializeGameArea(gameArea);
     }
 
     // function that appends textarea boxes according to the length of the word
@@ -191,51 +208,21 @@ const GraphicInterface = () => {
     }
 
     // adds the HTML of the hangman
-    const addTheHangman = (playerLifes, gameArea) => {
+const addTheHangman = (playerLifes, gameArea) => {
         if(playerLifes === 6){
             return;
         } else if(playerLifes === 5){
-            gameArea.innerHTML += '<div class="figure-part figure-head"></div>'
+            gameArea.insertAdjacentHTML('beforeend', '<div class="figure-part figure-head"></div>');
         } else if(playerLifes === 4){
-            gameArea.innerHTML += 
-            `
-            <div class="figure-part figure-head"></div>
-            <div class="figure-part figure-torso"></div>
-            `
+            gameArea.insertAdjacentHTML('beforeend', '<div class="figure-part figure-torso"></div>');
         } else if(playerLifes === 3){
-            gameArea.innerHTML += 
-            `
-            <div class="figure-part figure-head"></div>
-            <div class="figure-part figure-torso"></div>
-            <div class="figure-part figure-arm-left"></div>
-            `
+            gameArea.insertAdjacentHTML('beforeend', '<div class="figure-part figure-arm-left"></div>');
         } else if(playerLifes === 2){
-            gameArea.innerHTML +=
-            `
-            <div class="figure-part figure-head"></div>
-            <div class="figure-part figure-torso"></div>
-            <div class="figure-part figure-arm-left"></div>
-            <div class="figure-part figure-arm-right"></div>
-            `
+            gameArea.insertAdjacentHTML('beforeend', '<div class="figure-part figure-arm-right"></div>');
         } else if(playerLifes === 1){
-            gameArea.innerHTML +=
-            `
-            <div class="figure-part figure-head"></div>
-            <div class="figure-part figure-torso"></div>
-            <div class="figure-part figure-arm-left"></div>
-            <div class="figure-part figure-arm-right"></div>
-            <div class="figure-part figure-leg-left"></div>
-            `
-        } else {
-            gameArea.innerHTML +=
-            `
-            <div class="figure-part figure-head"></div>
-            <div class="figure-part figure-torso"></div>
-            <div class="figure-part figure-arm-left"></div>
-            <div class="figure-part figure-arm-right"></div>
-            <div class="figure-part figure-leg-left"></div>
-            <div class="figure-part figure-leg-right"></div>
-            `
+            gameArea.insertAdjacentHTML('beforeend', '<div class="figure-part figure-leg-left"></div>');
+        } else if(playerLifes === 0){ // Es mejor ser explícito o dejarlo como else
+            gameArea.insertAdjacentHTML('beforeend', '<div class="figure-part figure-leg-right"></div>');
         }
     }
 
@@ -251,6 +238,12 @@ const GraphicInterface = () => {
             <h2>Round Won</h2>
             <p>${playerName}<p>
             <p>You've won  <span class='red-saloon'>${playerWins}</span> times</p>
+            <label for="new-difficulty">Reward</label>
+            <select name="difficulty" id="new-difficulty" required>
+                <option value="1">$250</option>
+                <option value="2">$500</option>
+                <option value="3">$1,000</option>
+            </select>
             `
             overlay.innerHTML += `<button id="new-game">another round?</button>`;
         } else {
@@ -260,6 +253,12 @@ const GraphicInterface = () => {
             <p class='player-name'>${playerName}<p>
             <p>The correct word was <span class="red-saloon">${correctWord}</span></p>
             <p>You've won  <span class='red-saloon'>${playerWins}</span> times</p>
+            <label for="new-difficulty">Reward</label>
+            <select name="difficulty" id="new-difficulty" required>
+                <option value="1">$250</option>
+                <option value="2">$500</option>
+                <option value="3">$1,000</option>
+            </select>
             `
             overlay.innerHTML += `<button id="new-game">try again?</button>`;
         }
@@ -267,7 +266,7 @@ const GraphicInterface = () => {
     }
 
     
-    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes, initializeGameArea, addTheHangman, endGameScreen } 
+    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes, initializeGameArea, addTheHangman, endGameScreen, removeEndScreen } 
 }
 
 // We add our factory functions to our variables
@@ -282,7 +281,7 @@ const hangmanArea = document.getElementById('hangman-area');
 const lettersArea = document.getElementById('letters-area');
 const checkAnswerBtn = document.getElementById('check-answer');
 const welcomeScreenArea = document.getElementById('welcome-screen');
-const restartGame = document.getElementById('new-game');
+
 
 // Global variables that we will need, because we need them to be accesible (at least for now).
 let word;
@@ -316,15 +315,17 @@ checkAnswerBtn.addEventListener('click', () => {
     const playerGuess = graphics.getPlayerGuess(textAreaNode);
     let isRoundWon = controller.gameStatusChecker(playerArray, word).isRoundWon;
     const playerName = controller.player.getPlayerName();
-    const playerWins = controller.player.getPlayerWins()
+    let playerWins = controller.player.getPlayerWins();
 
     if(playerGuess.letter === ""){
         return;
     }
     
     if(isRoundWon){
+        playerWins = controller.player.getPlayerWins();
         graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
     } else if(isRoundWon === false){
+        playerWins = controller.player.getPlayerWins();
         graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
     } else {
         const playerAccuracy = controller.isPlayerAccurate(word, playerGuess.letter, playerGuess.position, playerArray);
@@ -333,12 +334,31 @@ checkAnswerBtn.addEventListener('click', () => {
         isRoundWon = controller.gameStatusChecker(playerArray, word).isRoundWon;
         graphics.addTheHangman(controller.player.getPlayerLifes(), hangmanArea);
         if(isRoundWon === true){
+            playerWins = controller.player.getPlayerWins();
             graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
+            const restartGame = document.getElementById('new-game');
+            const difficulty = document.getElementById('new-difficulty');
+            const overlay = document.querySelector('.game-over-overlay');
+            restartGame.addEventListener('click', () => {
+                const reset = controller.resetGameStatus(Number(difficulty.value));
+                word = reset.word;
+                playerArray = reset.playerArray;
+                graphics.removeEndScreen(overlay, word, lettersArea, hangmanArea);
+            });
         } else if(isRoundWon === false){
+            playerWins = controller.player.getPlayerWins();
             graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
+            const restartGame = document.getElementById('new-game');
+            const difficulty = document.getElementById('new-difficulty');
+            const overlay = document.querySelector('.game-over-overlay');
+            restartGame.addEventListener('click', () => {
+                const reset = controller.resetGameStatus(Number(difficulty.value));
+                word = reset.word;
+                playerArray = reset.playerArray;
+                graphics.removeEndScreen(overlay, word, lettersArea, hangmanArea);
+            });
         }
     }
 });
-
 
  

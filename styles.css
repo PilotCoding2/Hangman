@@ -159,7 +159,7 @@ body{
     background-color: var(--paper-shade);
 }
 
-#difficulty {
+#difficulty, #new-difficulty {
     appearance: none;
     --webkit-appearance: none;
     background-color: transparent;
@@ -378,7 +378,7 @@ body{
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
     border-radius: 4px;
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 100;
@@ -391,7 +391,7 @@ body{
     margin: 0 0 10px 0;
 }
 
-.game-over-overlay p{
+.game-over-overlay p, .game-over-overlay label{
     font-family: var(--font-body);
     color: var(--ink-soft);
     font-size: var(--text-md);
@@ -407,6 +407,7 @@ body{
     text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
-.game-over-overlay .player-name{
+.game-over-overlay .player-name, .game-over-overlay label{
+
     font-size: var(--text-lg);
 }
