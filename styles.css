@@ -102,7 +102,7 @@ body{
     font-size: calc(var(--text-md) * 1.5);
 }
 
-#play-btn{
+#play-btn, #check-answer, #new-game{
     appearance: none;
     background: linear-gradient(135deg, #E6C27A, var(--brass) 60%, #9C6F1C);
     color: var(--plank-dark);
@@ -133,11 +133,11 @@ body{
 #play-btn::before{ left: 12px; }
 #play-btn::after{ right: 12px; }
 
-#play-btn:hover{
+#play-btn:hover, #check-answer:hover, #new-game:hover{
     filter: brightness(0.85) contrast(1.1);
 }
 
-#play-btn:active{
+#play-btn:active, #check-answer:active, #new-game:active{
     transform: translateY(2px);
     box-shadow: iinset 0 4px 8px rgba(0,0,0,0.6), 0 1px 1px rgba(0,0,0,0.1);
 }
@@ -365,3 +365,48 @@ body{
     transform-origin: top center;
 }
 
+.game-over-overlay{
+    background-color: var(--paper);
+    border: 2px solid var(--paper-border);
+    padding: 25px 20px;
+    width: 80%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    border-radius: 4px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+.game-over-overlay h2{
+    font-family: var(--font-display);
+    color: var(--ink);
+    font-size: var(--text-xl);
+    margin: 0 0 10px 0;
+}
+
+.game-over-overlay p{
+    font-family: var(--font-body);
+    color: var(--ink-soft);
+    font-size: var(--text-md);
+    margin: 0;
+    gap: 5px;
+}
+
+.game-over-overlay .red-saloon {
+    color: var(--saloon-red);
+    font-size: calc(var(--text-lg) * 1.1);
+    font-family: var(--font-display);
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3);
+}
+
+.game-over-overlay .player-name{
+    font-size: var(--text-lg);
+}

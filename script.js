@@ -12,6 +12,9 @@ const createPlayer = name => {
     // increase the player wins each time they win
     const increasePlayerWins = () => { playerWins++; };
 
+    // gets the player wins
+    const getPlayerWins = () => { return playerWins; };
+
     // reset the player lifes each time the game restarts
     const resetPlayerLifes = () => { playerLifes = 6; };
 
@@ -21,7 +24,7 @@ const createPlayer = name => {
     // returns the player name
     const getPlayerName = () => { return playerName; };
 
-    return { getPlayerName, decreaseLifes, increasePlayerWins, resetPlayerLifes, getPlayerLifes }
+    return { getPlayerName, decreaseLifes, increasePlayerWins, resetPlayerLifes, getPlayerLifes, getPlayerWins }
 }
 
 const GameController = (name) => {
@@ -107,15 +110,13 @@ const GameController = (name) => {
   const gameStatusChecker = (playerWord, word) => {
     let isRoundWon;
     if(player.getPlayerLifes() === 0){
-        alert('game lost');
         isRoundWon = false;
     } else if(playerWord.join('').toLowerCase() === word && player.getPlayerLifes() > 0){
-        alert('game won');
         isRoundWon = true;
+        player.increasePlayerWins();
     }
     return { isRoundWon };
   }
-
 
   return { getCurrentWord, isPlayerAccurate, generatePlayerArray, gameStatusChecker, player }
 };
@@ -171,8 +172,9 @@ const GraphicInterface = () => {
 
     // this function gets the player guess from the GUI
     const getPlayerGuess = boxes => {
+        
         const position = Array.from(boxes).findIndex(box => box.value !== '' && !box.classList.contains('accurate'));
-        const letter = boxes[position].value;
+        const letter = position === -1 ? "" : boxes[position].value;
         return { letter, position };
     }
 
@@ -237,9 +239,35 @@ const GraphicInterface = () => {
         }
     }
 
+    const endGameScreen = (isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, correctWord, playerWins) => {
+        checkAnswerBtn.classList.add('invisible');
+        lettersArea.classList.add('invisible');
+        const overlay = document.createElement('div');
+        overlay.classList.add('game-over-overlay');
+
+        if(isRoundWon === true){
+            overlay.innerHTML += 
+            `
+            <h2>Round Won</h2>
+            <p>${playerName}<p>
+            <p>You've won  <span class='red-saloon'>${playerWins}</span> times</p>
+            `
+            overlay.innerHTML += `<button id="new-game">another round?</button>`;
+        } else {
+            overlay.innerHTML = 
+            `
+            <h2>Round Lost</h2>
+            <p class='player-name'>${playerName}<p>
+            <p>The correct word was <span class="red-saloon">${correctWord}</span></p>
+            <p>You've won  <span class='red-saloon'>${playerWins}</span> times</p>
+            `
+            overlay.innerHTML += `<button id="new-game">try again?</button>`;
+        }
+        hangmanArea.appendChild(overlay);
+    }
+
     
-    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes, initializeGameArea, addTheHangman }
-      
+    return { removeGameStartForm, appendTextArea, blockEmptyBoxes, getPlayerGuess, addStatusToBoxes, removeStatusBoxes, initializeGameArea, addTheHangman, endGameScreen } 
 }
 
 // We add our factory functions to our variables
@@ -254,6 +282,7 @@ const hangmanArea = document.getElementById('hangman-area');
 const lettersArea = document.getElementById('letters-area');
 const checkAnswerBtn = document.getElementById('check-answer');
 const welcomeScreenArea = document.getElementById('welcome-screen');
+const restartGame = document.getElementById('new-game');
 
 // Global variables that we will need, because we need them to be accesible (at least for now).
 let word;
@@ -285,16 +314,31 @@ lettersArea.addEventListener('keydown', (event) => {
 checkAnswerBtn.addEventListener('click', () => {
     const textAreaNode = lettersArea.querySelectorAll('.text-box');
     const playerGuess = graphics.getPlayerGuess(textAreaNode);
+    let isRoundWon = controller.gameStatusChecker(playerArray, word).isRoundWon;
+    const playerName = controller.player.getPlayerName();
+    const playerWins = controller.player.getPlayerWins()
 
-    // Avoids the player from sending nothing to the game controller
-    if(playerGuess.letter === ''){
+    if(playerGuess.letter === ""){
         return;
     }
-
-    const playerAccuracy = controller.isPlayerAccurate(word, playerGuess.letter, playerGuess.position, playerArray);
-    graphics.addStatusToBoxes(playerAccuracy.status, playerGuess.position);
-    graphics.blockEmptyBoxes(textAreaNode);
-    graphics.addTheHangman(controller.player.getPlayerLifes(), hangmanArea);
+    
+    if(isRoundWon){
+        graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
+    } else if(isRoundWon === false){
+        graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
+    } else {
+        const playerAccuracy = controller.isPlayerAccurate(word, playerGuess.letter, playerGuess.position, playerArray);
+        graphics.addStatusToBoxes(playerAccuracy.status, playerGuess.position);
+        graphics.blockEmptyBoxes(textAreaNode);
+        isRoundWon = controller.gameStatusChecker(playerArray, word).isRoundWon;
+        graphics.addTheHangman(controller.player.getPlayerLifes(), hangmanArea);
+        if(isRoundWon === true){
+            graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
+        } else if(isRoundWon === false){
+            graphics.endGameScreen(isRoundWon, checkAnswerBtn, hangmanArea, playerName, lettersArea, word, playerWins);
+        }
+    }
 });
+
 
  
